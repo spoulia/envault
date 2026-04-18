@@ -21,6 +21,9 @@ def rotate(vault_path: Path, old_password: str, new_password: str) -> None:
     if not vault_path.exists():
         raise FileNotFoundError(f"Vault not found: {vault_path}")
 
+    if old_password == new_password:
+        raise ValueError("new_password must differ from old_password")
+
     raw = vault_path.read_bytes()
     # decrypt raises ValueError on bad password
     plaintext = decrypt(raw, old_password)
