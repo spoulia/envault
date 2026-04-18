@@ -40,8 +40,19 @@ envault share import vault_bundle.json \
 | `--password` | prompted | Decryption password |
 | `--output` | `.env.vault` | Destination vault file |
 
+### Verify a bundle
+
+Before importing, you can verify that a bundle is intact and was encrypted with the correct password without writing any files:
+
+```bash
+envault share verify vault_bundle.json --password <team-password>
+```
+
+This is useful for confirming the right password before distributing a bundle to teammates.
+
 ## Security notes
 
 - Bundles use the same AES-256-GCM encryption as the vault itself.
 - The team password is **never** stored in the bundle.
 - Distribute the password through a separate secure channel (e.g. a secrets manager).
+- Treat bundle files as sensitive — while encrypted, they should not be committed to version control.
