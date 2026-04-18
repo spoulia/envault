@@ -48,3 +48,19 @@ def clear_tags(vault_path: str) -> None:
     data = _load_tags()
     data.pop(vault_path, None)
     _save_tags(data)
+
+
+def rename_tag(old_tag: str, new_tag: str) -> int:
+    """Rename a tag across all vault entries.
+
+    Returns the number of entries updated.
+    """
+    data = _load_tags()
+    updated = 0
+    for vault_path, tags in data.items():
+        if old_tag in tags:
+            tags[tags.index(old_tag)] = new_tag
+            updated += 1
+    if updated:
+        _save_tags(data)
+    return updated
