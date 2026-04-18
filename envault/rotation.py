@@ -16,7 +16,7 @@ def rotate(vault_path: Path, old_password: str, new_password: str) -> None:
     """Re-encrypt *vault_path* with *new_password*.
 
     Raises FileNotFoundError if the vault does not exist.
-    Raises ValueError if *old_password* is incorrect.
+    Raises ValueError if *old_password* is incorrect or equals *new_password*.
     """
     if not vault_path.exists():
         raise FileNotFoundError(f"Vault not found: {vault_path}")
@@ -29,7 +29,16 @@ def rotate(vault_path: Path, old_password: str, new_password: str) -> None:
     plaintext = decrypt(raw, old_password)
 
     new_ciphertext = encrypt(plaintext, new_password)
-    vault_path.write_bytes(new_ciphertext)
+
+    # Write atomically: stage to a temp file then replace, so a crash
+    # mid-write cannot leave the vault corrupted.
+    tmp_path = vault_path.with_suffix(".envault.tmp")
+    try:
+        tmp_path.write_bytes(new_ciphertext)
+        tmp_path.replace(vault_path)
+    except Exception:
+        tmp_path.unlink(missing_ok=True)
+        raise
 
     record(
         "rotate",
