@@ -18,6 +18,13 @@ def search():
 def run_cmd(pattern, vaults, password, values, ignore_case):
     """Search for PATTERN in vault keys (and optionally values)."""
     vault_paths = [Path(v) for v in vaults]
+
+    missing = [p for p in vault_paths if not p.exists()]
+    if missing:
+        for p in missing:
+            click.echo(f"Error: vault file not found: {p}", err=True)
+        raise click.Abort()
+
     results = search_many(vault_paths, password, pattern, search_values=values, ignore_case=ignore_case)
     if not results:
         click.echo("No matches found.")
