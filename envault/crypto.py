@@ -4,6 +4,7 @@ import os
 import base64
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from cryptography.hazmat.primitives.kdf.scrypt import Scrypt
+from cryptography.exceptions import InvalidTag
 
 
 SALT_SIZE = 16
@@ -29,12 +30,22 @@ def encrypt(plaintext: str, password: str) -> str:
 
 
 def decrypt(encoded_bundle: str, password: str) -> str:
-    """Decrypt a base64-encoded ciphertext bundle and return plaintext."""
+    """Decrypt a base64-encoded ciphertext bundle and return plaintext.
+
+    Raises:
+        ValueError: If the bundle is too short or the password is incorrect.
+    """
     bundle = base64.b64decode(encoded_bundle.encode())
+    min_size = SALT_SIZE + NONCE_SIZE
+    if len(bundle) <= min_size:
+        raise ValueError("Invalid bundle: data is too short to be a valid encrypted payload.")
     salt = bundle[:SALT_SIZE]
     nonce = bundle[SALT_SIZE:SALT_SIZE + NONCE_SIZE]
     ciphertext = bundle[SALT_SIZE + NONCE_SIZE:]
     key = derive_key(password, salt)
     aesgcm = AESGCM(key)
-    plaintext = aesgcm.decrypt(nonce, ciphertext, None)
+    try:
+        plaintext = aesgcm.decrypt(nonce, ciphertext, None)
+    except InvalidTag:
+        raise ValueError("Decryption failed: incorrect password or corrupted data.")
     return plaintext.decode()
