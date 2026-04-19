@@ -47,6 +47,14 @@ def get_hooks(event: str) -> list:
     return _load_hooks().get(event, [])
 
 
+def list_all_hooks() -> dict:
+    """Return all registered hooks grouped by event.
+
+    Only includes events that have at least one hook registered.
+    """
+    return {event: cmds for event, cmds in _load_hooks().items() if cmds}
+
+
 def run_hooks(event: str, env: Optional[dict] = None) -> list:
     """Run all hooks for an event. Returns list of (command, returncode) tuples."""
     results = []
