@@ -48,3 +48,15 @@ def test_check_missing_file_exits_nonzero(runner: CliRunner, tmp_path: Path):
     ghost = tmp_path / "ghost.env"
     result = runner.invoke(required_cmd, ["check", str(ghost), "-k", "ANY_KEY"])
     assert result.exit_code != 0
+
+
+def test_check_multiple_missing_keys_reports_all(runner: CliRunner, env_file: Path):
+    """Ensure that when multiple keys are absent, each missing key is reported."""
+    result = runner.invoke(
+        required_cmd,
+        ["check", str(env_file), "-k", "MISSING_ONE", "-k", "MISSING_TWO"],
+    )
+    assert result.exit_code != 0
+    combined_output = result.output + (result.stderr if hasattr(result, "stderr") else "")
+    assert "MISSING_ONE" in combined_output
+    assert "MISSING_TWO" in combined_output
