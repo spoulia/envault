@@ -33,8 +33,14 @@ def save_cmd(name, vault, desc):
 @snapshots.command("restore")
 @click.argument("name")
 @click.option("--vault", default=".env.vault", show_default=True, help="Target vault file.")
-def restore_cmd(name, vault):
+@click.option("--yes", "-y", is_flag=True, help="Skip confirmation prompt.")
+def restore_cmd(name, vault, yes):
     """Restore vault from a named snapshot."""
+    if not yes:
+        click.confirm(
+            f"Restore vault from snapshot '{name}'? This will overwrite '{vault}'.",
+            abort=True,
+        )
     try:
         restore_snapshot(name, Path(vault))
         click.echo(f"Vault restored from snapshot '{name}'.")
