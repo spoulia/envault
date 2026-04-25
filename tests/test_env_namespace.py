@@ -85,3 +85,17 @@ def test_add_then_strip_roundtrip(env_file):
     add_namespace(env_file, "NS_")
     strip_namespace(env_file, "NS_")
     assert env_file.read_text() == original
+
+
+def test_add_namespace_raises_for_missing_file(tmp_path):
+    """add_namespace should raise FileNotFoundError when the env file does not exist."""
+    missing = tmp_path / "nonexistent.env"
+    with pytest.raises(FileNotFoundError):
+        add_namespace(missing, "PROD_")
+
+
+def test_strip_namespace_raises_for_missing_file(tmp_path):
+    """strip_namespace should raise FileNotFoundError when the env file does not exist."""
+    missing = tmp_path / "nonexistent.env"
+    with pytest.raises(FileNotFoundError):
+        strip_namespace(missing, "PROD_")
