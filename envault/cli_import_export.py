@@ -22,6 +22,10 @@ def export_cmd(env_file: Path, fmt: str, output: Path | None):
         click.echo(f"Error: {e}", err=True)
         raise SystemExit(1)
     if output:
+        if output.exists():
+            click.confirm(
+                f"File '{output}' already exists. Overwrite?", abort=True
+            )
         output.write_text(result)
         click.echo(f"Exported to {output}")
     else:
