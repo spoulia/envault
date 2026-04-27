@@ -36,7 +36,20 @@ def encrypt_fields(
     keys: list[str] | None = None,
     overwrite: bool = False,
 ) -> FieldEncryptResult:
-    """Encrypt specific (or all) values in *path* in-place."""
+    """Encrypt specific (or all) values in *path* in-place.
+
+    Args:
+        path: Path to the .env file to modify.
+        password: Password used to derive the encryption key.
+        keys: List of variable names to encrypt. If ``None``, all variables
+            are encrypted.
+        overwrite: When ``True``, re-encrypt values that are already marked
+            as encrypted. Defaults to ``False``.
+
+    Returns:
+        A :class:`FieldEncryptResult` describing which keys were processed
+        and which were skipped.
+    """
     text = path.read_text()
     pairs = _parse_env(text)
     result = FieldEncryptResult(path=str(path))
@@ -62,7 +75,18 @@ def decrypt_fields(
     password: str,
     keys: list[str] | None = None,
 ) -> FieldEncryptResult:
-    """Decrypt encrypted values in *path* in-place."""
+    """Decrypt encrypted values in *path* in-place.
+
+    Args:
+        path: Path to the .env file to modify.
+        password: Password used to derive the decryption key.
+        keys: List of variable names to decrypt. If ``None``, all variables
+            that carry the encryption marker are decrypted.
+
+    Returns:
+        A :class:`FieldEncryptResult` describing which keys were processed
+        and which were skipped.
+    """
     text = path.read_text()
     pairs = _parse_env(text)
     result = FieldEncryptResult(path=str(path))
