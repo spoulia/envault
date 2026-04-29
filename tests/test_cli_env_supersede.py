@@ -45,6 +45,13 @@ def test_run_writes_updated_value(runner, env_pair):
     assert "DB_HOST=prod-db" in dst.read_text()
 
 
+def test_run_preserves_keys_not_in_source(runner, env_pair):
+    """Keys present only in the target file must be retained after a run."""
+    src, dst = env_pair
+    runner.invoke(supersede_cmd, ["run", str(src), str(dst)])
+    assert "EXTRA=keep" in dst.read_text()
+
+
 def test_run_dry_run_does_not_write(runner, env_pair):
     src, dst = env_pair
     original = dst.read_text()
